@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no"/>
+    <title>diaginfo portal</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="h-full p-2">
+<div class="font-mono m-4 text-3xl">diaginfo</div>
+
+<div class="inline-grid grid-cols-2">
+    <div id="bw-test" class="bg-white overflow-hidden rounded-lg drop-shadow-md mr-3">
+        <div class="px-2 py-2">
+            <dl>
+                <div class="px-2 py-2 grid grid-cols-2 gap-4 text-sm">
+                    <dt class="font-medium text-gray-500">Local IP Address</dt>
+                    <dd id="netLocalIP" class="mt-1 text-gray-900 mt-0"></dd>
+                    <dt class="font-medium text-gray-500">Remote IP Address</dt>
+                    <dd id="netRemoteIP" class="mt-1 text-gray-900 mt-0"></dd>
+                    <dt class="font-medium text-gray-500">Latency (ms)</dt>
+                    <dd id="netPing" class="mt-1 text-gray-900 mt-0"></dd>
+                    <dt class="font-medium text-gray-500">Jitter (ms)</dt>
+                    <dd id="netJitter" class="mt-1 text-gray-900 mt-0"></dd>
+                    <dt class="font-medium text-gray-500">Download speed</dt>
+                    <dd id="netDownload" class="mt-1 text-gray-900 mt-0"></dd>
+                    <dt class="font-medium text-gray-500">Upload speed</dt>
+                    <dd id="netUpload" class="mt-1 text-gray-900 mt-0"></dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+    <!-- <div class="bg-white overflow-hidden rounded-lg drop-shadow-md">
+        <div class="px-2 py-2">
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+    <div class="bg-white overflow-hidden rounded-lg drop-shadow-md">
+        <div class="px-2 py-2">
+            <br>
+            <br>
+            <br>
+        </div>
+    </div>
+    <div class="bg-white overflow-hidden rounded-lg drop-shadow-md">
+        <div class="px-2 py-2">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+    </div> -->
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript" src="./speedtest.js"></script>
+<script type="text/javascript">
+    $(document).ready(() => {
+        //INITIALIZE SPEEDTEST
+        let s = new Speedtest();
+        s.start();
+
+        s.onupdate = function (data) {
+            $("#netLocalIP").text(data.clientIp)
+            $("#netDownload").text((data.testState == 1 && data.dlStatus == 0) ? "..." : data.dlStatus + " Mbps")
+            $("#netUpload").text((data.testState == 3 && data.ulStatus == 0) ? "..." : data.ulStatus + " Mbps")
+            $("#netPing").text(data.pingStatus + " ms")
+            $("#netJitter").text(data.jitterStatus + " ms")
+        }
+        s.onend = function (aborted) {
+            $("#startStopBtn").className = ""; //show start button again
+            if (aborted) {
+                // If aborted, do nothing. Leave the partial results up for now.
+                // initUI();
+            }
+        }
+
+        // GET REMOTE IP
+        $.get("https://ipinfo.io/json").done(function (data) {
+            $("#netRemoteIP").html("<abbr title='" + data.org + "'>" + data.ip + "</abbr>")
+        })
+    })
+</script>
+</body>
+</html>
